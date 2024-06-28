@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+prompt = "a mermaid who saves her father the king of the sea"
 
 
 def generate_story(prompt):
@@ -30,16 +31,6 @@ def generate_story(prompt):
     return response.choices[0].message.content
 
 
-prompt = "a mermaid who saves her father the king of the sea"
-
-
-generated_story = generate_story(prompt)
-generated_story_json = json.loads(generated_story)
-
-with open("stories.json", "a") as f:
-    json.dump(generated_story_json, f)
-
-
 def generate_tts(story, story_json):
     """
     Generates a TTS response from the story using the OpenAI API.
@@ -54,4 +45,11 @@ def generate_tts(story, story_json):
     response.stream_to_file(speech_file_path)
 
 
+generated_story = generate_story(prompt)
+generated_story_json = json.loads(generated_story)
 generate_tts_response = generate_tts(generated_story, generated_story_json)
+
+
+"""
+sqlite database for stories
+"""
