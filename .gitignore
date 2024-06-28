@@ -1,2 +1,4 @@
 .venv
 .env
+stories.json
+*.mp3
