@@ -49,11 +49,6 @@ def generate_tts(story, story_json):
     return speech_file_path
 
 
-generated_story = generate_story(prompt)
-generated_story_json = json.loads(generated_story)
-generate_tts_response = generate_tts(generated_story, generated_story_json)
-
-
 """
 sqlite database for stories
 """
@@ -91,6 +86,23 @@ def add_story_to_db(story, tts_file_path):
     con.close()
 
 
+def get_story_from_db(title):
+    con = sqlite3.connect("stories.db")
+    cur = con.cursor()
+    res = cur.execute(
+        """
+    SELECT tts FROM stories WHERE title LIKE ? COLLATE NOCASE;
+    """,
+        (f"{title}%",),
+    )
+    story = res.fetchall()
+    return story
+
+
+# generated_story = generate_story(prompt)
+# generated_story_json = json.loads(generated_story)
+# generate_tts_response = generate_tts(generated_story, generated_story_json)
 if not os.path.isfile("stories.db"):
     create_stories_db()
-add_story_to_db(generated_story_json, generate_tts_response)
+# add_story_to_db(generated_story_json, generate_tts_response)
+print(get_story_from_db("the bear"))
