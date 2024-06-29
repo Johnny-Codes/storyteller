@@ -43,13 +43,14 @@ def generate_tts(story, story_json):
         voice="shimmer",
         input=story,
     )
-    response.stream_to_file(speech_file_path)
+    with open(speech_file_path, "wb") as f:
+        for chunk in response.iter_bytes():
+            f.write(chunk)
     return speech_file_path
 
 
 generated_story = generate_story(prompt)
 generated_story_json = json.loads(generated_story)
-print(generated_story_json)
 generate_tts_response = generate_tts(generated_story, generated_story_json)
 
 
@@ -62,6 +63,8 @@ def create_stories_db():
     """
     Creates the stories.db sqlite3 database.
     Stories table with columns of title (text), story (text), tts (text - path to file)
+    tts is converted from a Windows file path to a string.
+    Have to look at this code on an RPI since it's linux based.
     """
     con = sqlite3.connect("stories.db")
     cur = con.cursor()
@@ -74,11 +77,8 @@ def create_stories_db():
 
 def add_story_to_db(story, tts_file_path):
     """
-    adds the story title, text, and filepath of the mp3 to the database.
+    adds the story title, text, and filepath (converted to string) of the mp3 to the database.
     """
-    print("add to story title", story["title"])
-    print("add to story title", story["story"])
-    print("add to story tts file path", tts_file_path)
     con = sqlite3.connect("stories.db")
     cur = con.cursor()
     cur.execute(
@@ -91,5 +91,6 @@ def add_story_to_db(story, tts_file_path):
     con.close()
 
 
-create_stories_db()
+if not os.path.isfile("stories.db"):
+    create_stories_db()
 add_story_to_db(generated_story_json, generate_tts_response)
