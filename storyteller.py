@@ -4,6 +4,7 @@ import sqlite3
 from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
+from StoryDB import StoryDB
 
 load_dotenv()
 
@@ -32,10 +33,11 @@ def generate_story(prompt):
     return response.choices[0].message.content
 
 
-def generate_tts(story, story_json):
+def generate_tts(story):
     """
     Generates a TTS response from the story using the OpenAI API.
     """
+    story_json = json.loads(story)
     file_name = story_json["title"]
     speech_file_path = Path(__file__).parent / f"{file_name}.mp3"
     response = client.audio.speech.create(
@@ -47,62 +49,3 @@ def generate_tts(story, story_json):
         for chunk in response.iter_bytes():
             f.write(chunk)
     return speech_file_path
-
-
-"""
-sqlite database for stories
-"""
-
-
-def create_stories_db():
-    """
-    Creates the stories.db sqlite3 database.
-    Stories table with columns of title (text), story (text), tts (text - path to file)
-    tts is converted from a Windows file path to a string.
-    Have to look at this code on an RPI since it's linux based.
-    """
-    con = sqlite3.connect("stories.db")
-    cur = con.cursor()
-    cur.execute(
-        "CREATE TABLE IF NOT EXISTS stories (id INTEGER PRIMARY KEY, title TEXT, story TEXT, tts TEXT)"
-    )
-    con.commit()
-    con.close()
-
-
-def add_story_to_db(story, tts_file_path):
-    """
-    adds the story title, text, and filepath (converted to string) of the mp3 to the database.
-    """
-    con = sqlite3.connect("stories.db")
-    cur = con.cursor()
-    cur.execute(
-        """
-        INSERT INTO stories (title, story, tts) VALUES (?, ?, ?)
-        """,
-        (story["title"], story["story"], str(tts_file_path)),
-    )
-    con.commit()
-    con.close()
-
-
-def get_story_from_db(title):
-    con = sqlite3.connect("stories.db")
-    cur = con.cursor()
-    res = cur.execute(
-        """
-    SELECT tts FROM stories WHERE title LIKE ? COLLATE NOCASE;
-    """,
-        (f"{title}%",),
-    )
-    story = res.fetchall()
-    return story
-
-
-# generated_story = generate_story(prompt)
-# generated_story_json = json.loads(generated_story)
-# generate_tts_response = generate_tts(generated_story, generated_story_json)
-if not os.path.isfile("stories.db"):
-    create_stories_db()
-# add_story_to_db(generated_story_json, generate_tts_response)
-print(get_story_from_db("the bear"))
