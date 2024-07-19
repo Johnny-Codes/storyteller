@@ -49,3 +49,11 @@ def generate_tts(story):
         for chunk in response.iter_bytes():
             f.write(chunk)
     return speech_file_path
+
+
+# Testing Code
+generated_story = generate_story(prompt)
+tts_file_path = generate_tts(generated_story)
+story_db = StoryDB()
+story_db.create_stories_db()
+story_db.add_story_to_db(generated_story, tts_file_path)
