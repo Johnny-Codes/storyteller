@@ -43,7 +43,7 @@ class StoryDB:
                 """,
                 (f"{title}%",),
             )
-            return res.fetchall()
+            return res.fetchone()[0]
 
     def delete_story_from_db(self, title):
         with self.db_cursor() as cur:
@@ -53,3 +53,16 @@ class StoryDB:
                 """,
                 (f"{title}",),
             )
+
+
+def delete_from_db(friend):
+    con = sqlite3.connect("mydb.db")
+    cur = con.cursor()
+    cur.execute(
+        """
+        DELETE FROM mydb WHERE name LIKE ?;
+        """,
+        (friend["name"],),
+    )
+    con.commit()
+    con.close()

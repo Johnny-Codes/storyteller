@@ -5,6 +5,9 @@ from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
 from StoryDB import StoryDB
+import vlc
+import time
+
 
 load_dotenv()
 
@@ -51,9 +54,13 @@ def generate_tts(story):
     return speech_file_path
 
 
-# Testing Code
-generated_story = generate_story(prompt)
-tts_file_path = generate_tts(generated_story)
+### Testing Code ###
+# generated_story = generate_story(prompt)
+# tts_file_path = generate_tts(generated_story)
 story_db = StoryDB()
-story_db.create_stories_db()
-story_db.add_story_to_db(generated_story, tts_file_path)
+# story_db.create_stories_db()
+# story_db.add_story_to_db(generated_story, tts_file_path)
+story = story_db.get_story_from_db("The Bear and the Ladybug")
+p = vlc.MediaPlayer(story)
+p.play()
+time.sleep(500)
