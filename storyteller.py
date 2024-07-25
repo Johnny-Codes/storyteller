@@ -54,6 +54,14 @@ def generate_tts(story):
     return speech_file_path
 
 
+def play_story(story_path):
+    p = vlc.MediaPlayer(story_path)
+    p.play()
+    time.sleep(1)
+    length = p.get_length() / 1000
+    time.sleep(length)
+
+
 ### Testing Code ###
 # generated_story = generate_story(prompt)
 # tts_file_path = generate_tts(generated_story)
@@ -61,6 +69,9 @@ story_db = StoryDB()
 # story_db.create_stories_db()
 # story_db.add_story_to_db(generated_story, tts_file_path)
 story = story_db.get_story_from_db("The Bear and the Ladybug")
-p = vlc.MediaPlayer(story)
-p.play()
-time.sleep(500)
+# p = vlc.MediaPlayer(story)
+# p.play()
+# time.sleep(500)
+if story:
+    story_path = story
+    play_story(story)
